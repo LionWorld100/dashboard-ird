@@ -14,8 +14,7 @@ app.config['SECRET_KEY'] = 'asdf#FGSgvasgf$5$WGT'
 
 app.register_blueprint(user_bp, url_prefix='/api')
 
-# Database configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://dashboard_db_f6wq_user:cUSSc8sBK8C5@dpg-d1elfgbe5dus73bjeri0-a.oregon-postgres.render.com/dashboard_db_f6wq'
+# Database configurationapp.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://dashboard_db_f6wq_user:cUSSc8sBK8C5@dpg-d1elfgbe5dus73bjeri0-a.oregon-postgres.render.com/dashboard_db_f6wq?sslmode=require"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
