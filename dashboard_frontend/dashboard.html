@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Completo - Método IRD</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Auth Check Script -->
+    <script>
+        // Check if user is logged in
+        if (localStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        }
+    </script>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-chart-bar"></i>
+                <h2>Método IRD</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li class="active" id="menu-visao-geral"><i class="fas fa-tachometer-alt"></i> Visão Geral</li>
+                <li id="menu-resultados-diarios"><i class="fas fa-chart-line"></i> Resultados Diários</li>
+                <li id="menu-analise-plataformas"><i class="fas fa-chart-pie"></i> Análise de Plataformas</li>
+                <li id="menu-financeiro"><i class="fas fa-wallet"></i> Financeiro</li>
+                <li id="menu-meus-resultados"><i class="fas fa-chart-bar"></i> Meus resultados</li>
+                <li id="menu-configuracoes" style="display: none;"><i class="fas fa-cog"></i> Configurações</li>
+                <li id="menu-change-password"><i class="fas fa-key"></i> Alterar Senha</li>
+                <li id="menu-admin" style="display: none;"><i class="fas fa-users"></i> Administração</li>
+                <li id="menu-logout"><i class="fas fa-sign-out-alt"></i> Sair</li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1>Dashboard de Monitoramento</h1>
+                <div class="header-actions">
+                    <span class="user-info">Bem-vindo, <span id="username-display"></span>!</span>
+                    <button id="export-btn" class="btn btn-outline" style="display: none;">
+                        <i class="fas fa-file-export"></i> Exportar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Month Tabs -->
+            <div class="month-tabs" id="month-tabs">
+                <!-- Será preenchido dinamicamente pelo JavaScript -->
+            </div>
+
+            <!-- Year Filter -->
+            <div class="year-filter" id="year-filter">
+                <label for="year-select">Ano:</label>
+                <select id="year-select">
+                    <option value="all">Todos</option>
+                </select>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="kpi-cards">
+                <div class="kpi-card">
+                    <div class="kpi-icon blue">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="kpi-content">
+                        <h3 id="total-depositado">R$ 0,00</h3>
+                        <p>Total Depositado</p>
+                    </div>
+                    <button class="kpi-toggle-btn" id="total-depositado-toggle">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="kpi-details" id="total-depositado-details">
+                        <div id="total-depositado-details-content">
+                            <h4>Detalhes dos Depósitos Diários</h4>
+                            <p>Aqui serão exibidos os dados das colunas G e H da planilha quando um arquivo for importado.</p>
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-icon green">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="kpi-content">
+                        <h3 id="total-ganhos">R$ 0,00</h3>
+                        <p>Total de Ganhos</p>
+                    </div>
+                    <button class="kpi-toggle-btn" id="ganhos-toggle">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="kpi-details" id="ganhos-details"></div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-icon cyan">
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                    <div class="kpi-content">
+                        <h3 id="percentual-medio">0,00%</h3>
+                        <p>Percentual Médio</p>
+                    </div>
+                    <button class="kpi-toggle-btn" id="percentual-toggle">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="kpi-details" id="percentual-details"></div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-icon orange">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div class="kpi-content">
+                        <h3 id="projecao-30-dias">R$ 0,00</h3>
+                        <p>Projeção 30 Dias</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-section">
+                <!-- Ganhos e Porcentagem Chart -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h2>Ganhos e Porcentagem</h2>
+                        <div class="chart-actions">
+                            <button class="period-btn active" data-period="day">Dia</button>
+                            <button class="period-btn" data-period="week">Semana</button>
+                            <button class="period-btn" data-period="month">Mês</button>
+                        </div>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="monthlyChart"></canvas>
+                        <div id="status-message" class="status-message">
+                            Importe um arquivo Excel para visualizar os dados.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Distribuição por Plataforma Chart -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h2>Distribuição por Plataforma</h2>
+                    </div>
+                    <div class="chart-body donut-chart-container">
+                        <div class="donut-chart-wrapper">
+                            <canvas id="donut-chart"></canvas>
+                        </div>
+                        <div class="donut-legend" id="donut-legend">
+                            <!-- Será preenchido dinamicamente pelo JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Sections -->
+            <div class="content-sections">
+                <div id="visao-geral-content" class="content-section active">
+                    <!-- Conteúdo já exibido acima -->
+                </div>
+                
+                <div id="resultados-diarios-content" class="content-section">
+                    <h2>Resultados Diários</h2>
+                    <div class="table-container">
+                        <table id="resultados-table">
+                            <thead>
+                                <tr>
+                                    <th>Dia</th>
+                                    <th>Ganhos</th>
+                                    <th>Porcentagem</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultados-table-body">
+                                <!-- Será preenchido dinamicamente pelo JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div id="analise-plataformas-content" class="content-section">
+                    <h2>Análise de Plataformas</h2>
+                    <div class="table-container">
+                        <table id="plataformas-table">
+                            <thead>
+                                <tr>
+                                    <th>Dia</th>
+                                    <th>Plataforma</th>
+                                    <th>Resultado</th>
+                                    <th>Percentual</th>
+                                </tr>
+                            </thead>
+                            <tbody id="plataformas-table-body">
+                                <!-- Será preenchido dinamicamente pelo JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div id="financeiro-content" class="content-section">
+                    <h2>Financeiro</h2>
+                    <!-- Filtro de Ano para Financeiro -->
+                    <div class="year-filter-financeiro">
+                        <label for="year-select-financeiro">Filtrar por ano:</label>
+                        <select id="year-select-financeiro">
+                            <option value="all">Todos</option>
+                        </select>
+                    </div>
+                    <div class="financial-cards">
+                        <div class="financial-card">
+                            <h3>Resumo Financeiro Mensal</h3>
+                            <div class="financial-item">
+                                <span>Total Investido:</span>
+                                <span id="total-investido">R$ 0,00</span>
+                            </div>
+                            <div class="financial-item">
+                                <span>Retorno Total:</span>
+                                <span id="retorno-total">R$ 0,00</span>
+                            </div>
+                            <div class="financial-item">
+                                <span>ROI:</span>
+                                <span id="roi">0,00%</span>
+                            </div>
+                        </div>
+                        <div class="financial-card">
+                            <h3>Resumo financeiro do primeiro semestre</h3>
+                            <div class="financial-item">
+                                <span>Total Investido:</span>
+                                <span id="total-investido-semestre1">R$ 0,00</span>
+                            </div>
+                            <div class="financial-item">
+                                <span>Retorno Total:</span>
+                                <span id="retorno-total-semestre1">R$ 0,00</span>
+                            </div>
+                            <div class="financial-item">
+                                <span>ROI:</span>
+                                <span id="roi-semestre1">0,00%</span>
+                            </div>
+                        </div>
+                        <div class="financial-card">
+                            <h3>Resumo financeiro do segundo semestre</h3>
+                            <div class="financial-item">
+                                <span>Total Investido:</span>
+                                <span id="total-investido-semestre2">R$ 0,00</span>
+                            </div>
+                            <div class="financial-item">
+                                <span>Retorno Total:</span>
+                                <span id="retorno-total-semestre2">R$ 0,00</span>
+                            </div>
+                            <div class="financial-item">
+                                <span>ROI:</span>
+                                <span id="roi-semestre2">0,00%</span>
+                            </div>
+                        </div>
+                        <div class="financial-card">
+                            <h3>Resumo financeiro anual</h3>
+                            <div class="financial-item">
+                                <span>Total Investido:</span>
+                                <span id="total-investido-anual">R$ 0,00</span>
+                            </div>
+                            <div class="financial-item">
+                                <span>Retorno Total:</span>
+                                <span id="retorno-total-anual">R$ 0,00</span>
+                            </div>
+                            <div class="financial-item">
+                                <span>ROI:</span>
+                                <span id="roi-anual">0,00%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="configuracoes-content" class="content-section">
+                    <h2>Configurações</h2>
+                    <div class="settings-container">
+                        <div class="settings-card">
+                            <h3>Importação de Dados</h3>
+                            <p>Gerencie os dados importados para o dashboard.</p>
+
+                            <div class="file-input-container">
+                                <input type="file" id="file-upload" accept=".xlsx,.xls">
+                                <label for="file-upload" class="btn btn-primary">
+                                    <i class="fas fa-file-import"></i> Importar
+                                </label>
+                            </div>
+                            <button id="delete-import-settings-btn" class="btn btn-danger">
+                                <i class="fas fa-trash"></i> Excluir Dados Importados
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div id="meus-resultados-content" class="content-section">
+                    <h2>Meus Resultados</h2>
+                    <div class="results-container">
+                        <div class="input-group">
+                            <label for="valor-investido">Insira o valor investido:</label>
+                            <input type="text" id="valor-investido" placeholder="R$ 0,00">
+                        </div>
+                        <div class="input-group">
+                            <label for="mes-selecionado">Selecione o mês investido:</label>
+                            <select id="mes-selecionado">
+                                <!-- Será preenchido dinamicamente pelo JavaScript -->
+                            </select>
+                        </div>
+                        <button id="calcular-roi-btn" class="btn btn-primary">Calcular ROI</button>
+                        <div class="results-display">
+                            <h3>Resultado Financeiro: <span id="resultado-financeiro">R$ 0,00</span></h3>
+                            <h3>ROI: <span id="roi-final">0,00%</span></h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div id="export-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Exportar Dados</h2>
+            <p>Escolha o formato de exportação:</p>
+            <div class="export-options">
+                <button id="export-excel" class="btn btn-primary">
+                    <i class="fas fa-file-excel"></i> Excel
+                </button>
+                <button id="export-csv" class="btn btn-primary">
+                    <i class="fas fa-file-csv"></i> CSV
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
+
+
+
+    <!-- Change Password Modal -->
+    <div id="change-password-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Alterar Senha</h2>
+                <span class="close" id="close-change-password-modal">&times;</span>
+            </div>
+            
+            <form id="change-password-form">
+                <div class="form-group">
+                    <label for="current-password">Senha Atual</label>
+                    <input type="password" id="current-password" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="new-password">Nova Senha</label>
+                    <input type="password" id="new-password" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirm-new-password">Confirmar Nova Senha</label>
+                    <input type="password" id="confirm-new-password" required>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                    <button type="button" id="cancel-change-password" class="btn btn-outline">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Alterar Senha</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+

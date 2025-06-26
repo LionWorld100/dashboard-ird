@@ -1,0 +1,94 @@
+{
+  "JAN24": {
+    "totalDeposits": 5000.00,
+    "totalGains": 200.00,
+    "averagePercentage": 4.00,
+    "projection30Days": 6000.00,
+    "depositDetails": {
+      "Plataforma A": 2000.00,
+      "Plataforma B": 1500.00,
+      "Plataforma C": 1000.00,
+      "Plataforma D": 500.00
+    },
+    "gainsDetails": {
+      "Plataforma A": 80.00,
+      "Plataforma B": 60.00,
+      "Plataforma C": 40.00,
+      "Plataforma D": 20.00
+    },
+    "percentageDetails": {
+      "Plataforma A": 4.00,
+      "Plataforma B": 4.00,
+      "Plataforma C": 4.00,
+      "Plataforma D": 4.00
+    },
+    "platforms": {
+      "Plataforma A": 80.00,
+      "Plataforma B": 60.00,
+      "Plataforma C": 40.00,
+      "Plataforma D": 20.00
+    },
+    "results": {
+      "day": {
+        "labels": ["1", "2", "3", "4", "5"],
+        "deposits": [1000, 1000, 1000, 1000, 1000],
+        "gains": [40, 40, 40, 40, 40]
+      },
+      "week": {
+        "labels": ["Semana 1"],
+        "deposits": [5000],
+        "gains": [200]
+      },
+      "month": {
+        "labels": ["JAN24"],
+        "deposits": [5000],
+        "gains": [200]    }
+  },
+  "JUL25": {
+    "totalDeposits": 9500.00,
+    "totalGains": 420.00,
+    "averagePercentage": 4.42,
+    "projection30Days": 10800.00,
+    "depositDetails": {
+      "Plataforma A": 3800.00,
+      "Plataforma B": 2800.00,
+      "Plataforma C": 1700.00,
+      "Plataforma D": 1200.00
+    },
+    "gainsDetails": {
+      "Plataforma A": 180.00,
+      "Plataforma B": 130.00,
+      "Plataforma C": 70.00,
+      "Plataforma D": 40.00
+    },
+    "percentageDetails": {
+      "Plataforma A": 4.73,
+      "Plataforma B": 4.64,
+      "Plataforma C": 4.12,
+      "Plataforma D": 3.33
+    },
+    "platforms": {
+      "Plataforma A": 180.00,
+      "Plataforma B": 130.00,
+      "Plataforma C": 70.00,
+      "Plataforma D": 40.00
+    },
+    "results": {
+      "day": {
+        "labels": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15"],
+        "deposits": [600, 400, 500, 700, 300, 450, 550, 650, 750, 800, 900, 850, 1000, 950, 1100],
+        "gains": [30, 20, 25, 35, 15, 22.5, 27.5, 32.5, 37.5, 40, 45, 42.5, 50, 47.5, 55]
+      },
+      "week": {
+        "labels": ["Semana 1", "Semana 2", "Semana 3"],
+        "deposits": [2500, 3200, 3800],
+        "gains": [125, 160, 135]
+      },
+      "month": {
+        "labels": ["JUL25"],
+        "deposits": [9500],
+        "gains": [420]
+      }
+    }
+  }
+}

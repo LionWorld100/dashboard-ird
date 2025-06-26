@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administração de Usuários - Dashboard IRD</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .admin-header {
+            background-color: #1e88e5;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .users-table {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .table-header {
+            background-color: #f5f5f5;
+            padding: 15px 20px;
+            border-bottom: 1px solid #ddd;
+            font-weight: 500;
+        }
+
+        .user-row {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr 2fr 1fr;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .user-row:last-child {
+            border-bottom: none;
+        }
+
+        .user-role {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .role-admin {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .role-user {
+            background-color: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .permissions-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .permission-tag {
+            background-color: #e8f5e8;
+            color: #2e7d32;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+        }
+
+        .permission-tag.denied {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-small {
+            padding: 5px 10px;
+            font-size: 12px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-edit {
+            background-color: #ff9800;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background-color: #f57c00;
+        }
+
+        .btn-delete {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .approval-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .approved {
+            background-color: #e8f5e8;
+            color: #2e7d32;
+        }
+
+        .pending {
+            background-color: #fff3e0;
+            color: #f57c00;
+        }
+
+        .btn-approve {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .btn-approve:hover {
+            background-color: #388e3c;
+        }
+
+        .btn-back {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-back:hover {
+            background-color: #388e3c;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 500px;
+            max-width: 90%;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: auto;
+        }
+
+        .error-message {
+            background-color: #ffebee;
+            color: #c62828;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .success-message {
+            background-color: #e8f5e8;
+            color: #2e7d32;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <!-- Auth Check Script -->
+    <script>
+        // Check if user is logged in and is admin
+        if (localStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        }
+        
+        const userRole = localStorage.getItem('userRole');
+        if (userRole !== 'admin') {
+            alert('Acesso negado. Apenas administradores podem acessar esta página.');
+            window.location.href = 'dashboard.html';
+        }
+    </script>
+
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1><i class="fas fa-users"></i> Administração de Usuários</h1>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button id="add-user-btn" class="btn-back" style="background-color: #1e88e5;">
+                    <i class="fas fa-plus"></i> Adicionar Novo Usuário
+                </button>
+                <button id="pending-users-btn" class="btn-back" style="background-color: #ff9800;">
+                    <i class="fas fa-clock"></i> <span id="pending-count">0</span> Pendentes
+                </button>
+                <a href="dashboard.html" class="btn-back">
+                    <i class="fas fa-arrow-left"></i> Voltar ao Dashboard
+                </a>
+            </div>
+        </div>
+
+        <div class="error-message" id="error-message"></div>
+        <div class="success-message" id="success-message"></div>
+
+        <div class="users-table">
+            <div class="table-header">
+                <div class="user-row" style="font-weight: 600; grid-template-columns: 1fr 1fr 1fr 1fr 2fr 1fr;">
+                    <div>Usuário</div>
+                    <div>Função</div>
+                    <div>Status</div>
+                    <div>Aprovação</div>
+                    <div>Permissões</div>
+                    <div>Ações</div>
+                </div>
+            </div>
+            <div id="users-list" class="loading">
+                <i class="fas fa-spinner fa-spin"></i> Carregando usuários...
+            </div>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div id="add-user-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Adicionar Novo Usuário</h2>
+                <span class="close" id="close-add-user-modal">&times;</span>
+            </div>
+            
+            <form id="add-user-form">
+                <div class="form-group">
+                    <label for="add-username">Nome de Usuário</label>
+                    <input type="text" id="add-username" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="add-password">Senha</label>
+                    <input type="password" id="add-password" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="add-role">Função</label>
+                    <select id="add-role">
+                        <option value="user">Usuário</option>
+                        <option value="admin">Administrador</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Permissões</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="add-can-access-config">
+                            <label for="add-can-access-config">Acessar Configurações</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="add-can-export" checked>
+                            <label for="add-can-export">Exportar Dados</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="add-can-view-financial" checked>
+                            <label for="add-can-view-financial">Ver Financeiro</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="add-can-view-analytics" checked>
+                            <label for="add-can-view-analytics">Ver Análises</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                    <button type="button" id="cancel-add-user" class="btn btn-outline">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Criar Usuário</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Editar Usuário</h2>
+                <span class="close" id="close-modal">&times;</span>
+            </div>
+            
+            <form id="edit-form">
+                <input type="hidden" id="edit-user-id">
+                
+                <div class="form-group">
+                    <label for="edit-username">Nome de Usuário</label>
+                    <input type="text" id="edit-username" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-role">Função</label>
+                    <select id="edit-role">
+                        <option value="user">Usuário</option>
+                        <option value="admin">Administrador</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-status">Status</label>
+                    <select id="edit-status">
+                        <option value="true">Ativo</option>
+                        <option value="false">Inativo</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Permissões</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="edit-can-access-config">
+                            <label for="edit-can-access-config">Acessar Configurações</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="edit-can-export">
+                            <label for="edit-can-export">Exportar Dados</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="edit-can-view-financial">
+                            <label for="edit-can-view-financial">Ver Financeiro</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="edit-can-view-analytics">
+                            <label for="edit-can-view-analytics">Ver Análises</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                    <button type="button" id="cancel-edit" class="btn btn-outline">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'https://5000-inqr3rsolkdd0gkdu3xor-384ba238.manusvm.computer/api/auth';
+        
+        let users = [];        // Load users on page load
+        document.addEventListener("DOMContentLoaded", function () {
+            loadUsers();
+            loadPendingCount();
+            
+            // Add User button click
+            document.getElementById("add-user-btn").addEventListener("click", function () {
+                document.getElementById("add-user-modal").style.display = "block";
+            });
+
+            // Close Add User modal
+            document.getElementById("close-add-user-modal").addEventListener("click", function () {
+                document.getElementById("add-user-modal").style.display = "none";
+            });
+
+            // Cancel Add User
+            document.getElementById("cancel-add-user").addEventListener("click", function () {
+                document.getElementById("add-user-modal").style.display = "none";
+            });
+
+            // Add User form submission
+            document.getElementById("add-user-form").addEventListener("submit", async function (e) {
+                e.preventDefault();
+
+                const username = document.getElementById("add-username").value;
+                const password = document.getElementById("add-password").value;
+                const role = document.getElementById("add-role").value;
+                const canAccessConfig = document.getElementById("add-can-access-config").checked;
+                const canExport = document.getElementById("add-can-export").checked;
+                const canViewFinancial = document.getElementById("add-can-view-financial").checked;
+                const canViewAnalytics = document.getElementById("add-can-view-analytics").checked;
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/register`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            username: username,
+                            password: password,
+                            role: role,
+                            can_access_config: canAccessConfig,
+                            can_export: canExport,
+                            can_view_financial: canViewFinancial,
+                            can_view_analytics: canViewAnalytics,
+                        }),
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        showSuccess(data.message);
+                        document.getElementById("add-user-modal").style.display = "none";
+                        document.getElementById("add-user-form").reset();
+                        loadUsers();
+                        loadPendingCount();
+                    } else {
+                        showError(data.message || "Erro ao adicionar usuário.");
+                    }
+                } catch (error) {
+                    showError("Erro de conexão ao adicionar usuário.");
+                }
+            });
+            
+            // Pending users button click
+            document.getElementById("pending-users-btn").addEventListener("click", function () {
+                showPendingUsers();
+            });
+        });
+
+        async function loadPendingCount() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/users/pending`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const count = data.pending_users.length;
+                    document.getElementById('pending-count').textContent = count;
+                    
+                    // Update button visibility
+                    const btn = document.getElementById('pending-users-btn');
+                    if (count > 0) {
+                        btn.style.display = 'inline-flex';
+                    } else {
+                        btn.style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao carregar usuários pendentes:', error);
+            }
+        }
+
+        async function showPendingUsers() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/users/pending`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const pendingUsers = data.pending_users;
+                    if (pendingUsers.length === 0) {
+                        showSuccess('Não há usuários pendentes de aprovação.');
+                        return;
+                    }
+                    
+                    let message = 'Usuários pendentes de aprovação:\\n\\n';
+                    pendingUsers.forEach(user => {
+                        message += `• ${user.username} (${user.role})\\n`;
+                    });
+                    message += '\\nDeseja aprovar todos?';
+                    
+                    if (confirm(message)) {
+                        for (const user of pendingUsers) {
+                            await approveUser(user.id);
+                        }
+                        showSuccess('Todos os usuários foram aprovados!');
+                        loadUsers();
+                        loadPendingCount();
+                    }
+                }
+            } catch (error) {
+                showError('Erro ao carregar usuários pendentes.');
+            }
+        }
+
+        async function loadUsers() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/users`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    users = data.users;
+                    renderUsers();
+                } else {
+                    showError('Erro ao carregar usuários: ' + data.message);
+                }
+            } catch (error) {
+                showError('Erro de conexão ao carregar usuários.');
+            }
+        }
+
+        function renderUsers() {
+            const usersList = document.getElementById('users-list');
+            
+            if (users.length === 0) {
+                usersList.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;">Nenhum usuário encontrado.</div>';
+                return;
+            }
+
+            usersList.innerHTML = users.map(user => `
+                <div class="user-row" style="grid-template-columns: 1fr 1fr 1fr 1fr 2fr 1fr;">
+                    <div><strong>${user.username}</strong></div>
+                    <div><span class="user-role role-${user.role}">${user.role === 'admin' ? 'Administrador' : 'Usuário'}</span></div>
+                    <div>${user.is_active ? '✅ Ativo' : '❌ Inativo'}</div>
+                    <div><span class="approval-status ${user.is_approved ? 'approved' : 'pending'}">${user.is_approved ? '✅ Aprovado' : '⏳ Pendente'}</span></div>
+                    <div class="permissions-list">
+                        ${user.permissions.can_access_config ? '<span class="permission-tag">Config</span>' : '<span class="permission-tag denied">Config</span>'}
+                        ${user.permissions.can_export ? '<span class="permission-tag">Export</span>' : '<span class="permission-tag denied">Export</span>'}
+                        ${user.permissions.can_view_financial ? '<span class="permission-tag">Financeiro</span>' : '<span class="permission-tag denied">Financeiro</span>'}
+                        ${user.permissions.can_view_analytics ? '<span class="permission-tag">Análises</span>' : '<span class="permission-tag denied">Análises</span>'}
+                    </div>
+                    <div class="user-actions">
+                        ${!user.is_approved ? `<button class="btn-small btn-approve" onclick="approveUser(${user.id})">
+                            <i class="fas fa-check"></i> Aprovar
+                        </button>` : ''}
+                        <button class="btn-small btn-edit" onclick="editUser(${user.id})">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                        <button class="btn-small btn-delete" onclick="deleteUser(${user.id}, '${user.username}')">
+                            <i class="fas fa-trash"></i> Excluir
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function editUser(userId) {
+            const user = users.find(u => u.id === userId);
+            if (!user) return;
+
+            document.getElementById('edit-user-id').value = user.id;
+            document.getElementById('edit-username').value = user.username;
+            document.getElementById('edit-role').value = user.role;
+            document.getElementById('edit-status').value = user.is_active.toString();
+            document.getElementById('edit-can-access-config').checked = user.permissions.can_access_config;
+            document.getElementById('edit-can-export').checked = user.permissions.can_export;
+            document.getElementById('edit-can-view-financial').checked = user.permissions.can_view_financial;
+            document.getElementById('edit-can-view-analytics').checked = user.permissions.can_view_analytics;
+
+            document.getElementById('edit-modal').style.display = 'block';
+        }
+
+        async function approveUser(userId) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/users/${userId}/approve`, {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showSuccess('Usuário aprovado com sucesso!');
+                    loadUsers();
+                    loadPendingCount();
+                } else {
+                    showError(data.message || 'Erro ao aprovar usuário.');
+                }
+            } catch (error) {
+                showError('Erro de conexão ao aprovar usuário.');
+            }
+        }
+
+        async function deleteUser(userId, username) {
+            if (!confirm(`Tem certeza que deseja excluir o usuário "${username}"?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showSuccess('Usuário excluído com sucesso!');
+                    loadUsers();
+                } else {
+                    showError(data.message || 'Erro ao excluir usuário.');
+                }
+            } catch (error) {
+                showError('Erro de conexão ao excluir usuário.');
+            }
+        }
+
+        // Modal controls
+        document.getElementById('close-modal').addEventListener('click', function() {
+            document.getElementById('edit-modal').style.display = 'none';
+        });
+
+        document.getElementById('cancel-edit').addEventListener('click', function() {
+            document.getElementById('edit-modal').style.display = 'none';
+        });
+
+        // Edit form submission
+        document.getElementById('edit-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const userId = document.getElementById('edit-user-id').value;
+            const formData = {
+                role: document.getElementById('edit-role').value,
+                is_active: document.getElementById('edit-status').value === 'true',
+                can_access_config: document.getElementById('edit-can-access-config').checked,
+                can_export: document.getElementById('edit-can-export').checked,
+                can_view_financial: document.getElementById('edit-can-view-financial').checked,
+                can_view_analytics: document.getElementById('edit-can-view-analytics').checked
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showSuccess('Usuário atualizado com sucesso!');
+                    document.getElementById('edit-modal').style.display = 'none';
+                    loadUsers();
+                } else {
+                    showError(data.message || 'Erro ao atualizar usuário.');
+                }
+            } catch (error) {
+                showError('Erro de conexão ao atualizar usuário.');
+            }
+        });
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            document.getElementById('success-message').style.display = 'none';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('success-message');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            document.getElementById('error-message').style.display = 'none';
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('edit-modal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
+
